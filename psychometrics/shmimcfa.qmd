@@ -1,0 +1,297 @@
+---
+title: "SHMIM CFA"
+format: html
+editor: visual
+---
+
+# SHMIM CFA Study 2 (1B in the manuscript)
+
+## Load Packages
+
+```{r}
+library(lavaan)
+```
+
+## Read Data
+
+```{r}
+library(readxl)
+
+shmimdata <- read_excel("shmimdata.xlsx")
+```
+
+## Base Model Specification
+
+```{r}
+shmim <- 'phys_reaction  =~ SHMIM_1 + SHMIM_2 + SHMIM_3 
+                cog_distress =~ SHMIM_4 + SHMIM_5 + SHMIM_6
+                vividness =~ SHMIM_7 + SHMIM_8 + SHMIM_9
+                intentionality =~ SHMIM_10 + SHMIM_11 + SHMIM_12
+                per_control =~ SHMIM_13 + SHMIM_14 + SHMIM_15'
+```
+
+### Fitting Model to Data
+
+```{r}
+shmim_model <- cfa(shmim, data = shmimdata, estimator= "MLR", std.lv=TRUE)
+```
+
+### Data Summary
+
+```{r}
+summary(shmim_model, fit.measures = TRUE, standardized=TRUE, rsquare=TRUE)
+```
+
+### Configural Invariance (Fan/Non-Fan)
+
+```{r}
+fit<-cfa(shmim,
+         data = shmimdata,
+         group = "horrorfan",
+         std.lv = TRUE)  
+
+summary(fit,
+        fit.measures = TRUE, 
+        standardized = TRUE,
+        rsquare = TRUE)
+```
+
+### Loadings Model (Fan/Non-Fan)
+
+```{r}
+fit<-cfa(shmim,
+         data = shmimdata,          
+         group = "horrorfan",          
+         group.equal = c("loadings"),
+         std.lv=TRUE)  
+
+summary(fit, 
+        fit.measures = TRUE,
+        standardized = TRUE,
+        rsquare = TRUE)
+```
+
+### Intercepts Model (Fan/Non-Fan)
+
+```{r}
+fit<-cfa(shmim,
+         data = shmimdata,
+         group = "horrorfan",
+         group.equal = c("loadings", 
+                         "intercepts"),
+         std.lv=TRUE)
+
+summary(fit,         
+        fit.measures = TRUE,
+        standardized = TRUE,
+        rsquare = TRUE)
+```
+
+### Measurement Invariance Summary (Fan/Non-Fan)
+
+```{r}
+config.model <-cfa(shmim, data = shmimdata, group = "horrorfan", std.lv=TRUE)
+load.model <-cfa(shmim, data = shmimdata, group = "horrorfan", group.equal = c("loadings"), std.lv=TRUE) 
+int.model  <-cfa(shmim, data = shmimdata, group = "horrorfan", group.equal = c("intercepts", "loadings"), std.lv=TRUE)
+
+fitMeasures(config.model, c("cfi","rmsea","srmr","aic","bic")) 
+fitMeasures(load.model, c("cfi","rmsea","srmr","aic","bic")) 
+fitMeasures(int.model, c("cfi","rmsea","srmr","aic","bic")) 
+```
+
+# Dystopia CFA
+
+## Read Data
+
+```{r}
+library(readxl)
+
+dystopia <- read_excel("dystopia.xlsx")
+
+dystopia[dystopia == -99] <- NA 
+```
+
+## Base Model Specification
+
+```{r}
+shmim <- 'phys_reaction  =~ SHMIM_1 + SHMIM_2 + SHMIM_3 
+                cog_distress =~ SHMIM_4 + SHMIM_5 + SHMIM_6
+                vividness =~ SHMIM_7 + SHMIM_8 + SHMIM_9
+                intentionality =~ SHMIM_10 + SHMIM_11 + SHMIM_12
+                per_control =~ SHMIM_13 + SHMIM_14 + SHMIM_15'
+```
+
+### Fitting Model to Data
+
+```{r}
+dystopia_model <- cfa(shmim, data = dystopia, estimator= "MLR", std.lv=TRUE)
+```
+
+### Data Summary
+
+```{r}
+summary(dystopia_model, fit.measures = TRUE, standardized=TRUE, rsquare=TRUE)
+```
+
+## Dystopia Reliabilities (Omegas)
+
+```{r}
+library(semTools)
+
+compRelSEM(dystopia_model)
+```
+
+```{r}
+semTools::compRelSEM(
+  dystopia_model,
+  return.total = TRUE
+)
+```
+
+## Dystopia Reliabilities (Alphas)
+
+```{r}
+library(psych)
+
+# Physiological Reaction
+alpha_phys <- psych::alpha(
+  dystopia[, c("SHMIM_1", "SHMIM_2", "SHMIM_3")]
+)$total$raw_alpha
+
+# Cognitive Distress
+alpha_cog <- psych::alpha(
+  dystopia[, c("SHMIM_4", "SHMIM_5", "SHMIM_6")]
+)$total$raw_alpha
+
+# Vividness
+alpha_vivid <- psych::alpha(
+  dystopia[, c("SHMIM_7", "SHMIM_8", "SHMIM_9")]
+)$total$raw_alpha
+
+# Intentionality
+alpha_intent <- psych::alpha(
+  dystopia[, c("SHMIM_10", "SHMIM_11", "SHMIM_12")]
+)$total$raw_alpha
+
+# Perceived Control
+alpha_control <- psych::alpha(
+  dystopia[, c("SHMIM_13", "SHMIM_14", "SHMIM_15")]
+)$total$raw_alpha
+
+# Display all alpha estimates
+round(c(
+  phys_reaction = alpha_phys,
+  cog_distress = alpha_cog,
+  vividness = alpha_vivid,
+  intentionality = alpha_intent,
+  per_control = alpha_control
+), 3)
+
+```
+
+```{r}
+alpha_total <- psych::alpha(
+  dystopia[, paste0("SHMIM_", 1:15)]
+)
+
+alpha_total$total$raw_alpha
+```
+
+# Language Invariance
+
+Combined data from Study 2(1B) and Dystopia
+
+## Load Packages
+
+```{r}
+library(lavaan)
+```
+
+## Read Data
+
+```{r}
+library(readxl)
+
+langdata <- read_excel("language_invariance.xlsx")
+
+langdata[langdata == -99] <- NA 
+```
+
+## Base Model Specification
+
+```{r}
+shmim <- 'phys_reaction  =~ SHMIM_1 + SHMIM_2 + SHMIM_3 
+                cog_distress =~ SHMIM_4 + SHMIM_5 + SHMIM_6
+                vividness =~ SHMIM_7 + SHMIM_8 + SHMIM_9
+                intentionality =~ SHMIM_10 + SHMIM_11 + SHMIM_12
+                per_control =~ SHMIM_13 + SHMIM_14 + SHMIM_15'
+```
+
+### Fitting Model to Data
+
+```{r}
+language_model <- cfa(shmim, data = langdata, estimator= "MLR", std.lv=TRUE)
+```
+
+### Data Summary
+
+```{r}
+summary(language_model, fit.measures = TRUE, standardized=TRUE, rsquare=TRUE)
+```
+
+## Configural Invariance
+
+```{r}
+fit<-cfa(shmim,
+         data = langdata,
+         group = "language",
+         std.lv = TRUE)  
+
+summary(fit,
+        fit.measures = TRUE, 
+        standardized = TRUE,
+        rsquare = TRUE)
+```
+
+## Loadings Model
+
+```{r}
+fit<-cfa(shmim,
+         data = langdata,          
+         group = "language",          
+         group.equal = c("loadings"),
+         std.lv=TRUE)  
+
+summary(fit, 
+        fit.measures = TRUE,
+        standardized = TRUE,
+        rsquare = TRUE)
+```
+
+## Intercepts Model
+
+```{r}
+fit<-cfa(shmim,
+         data = langdata,
+         group = "language",
+         group.equal = c("loadings", 
+                         "intercepts"),
+         std.lv=TRUE)
+
+summary(fit,         
+        fit.measures = TRUE,
+        standardized = TRUE,
+        rsquare = TRUE)
+```
+
+## Measurement Invariance Summary
+
+```{r}
+config.model <-cfa(shmim, data = langdata, group = "language", std.lv=TRUE)
+load.model <-cfa(shmim, data = langdata, group = "language", group.equal = c("loadings"), std.lv=TRUE) 
+int.model  <-cfa(shmim, data = langdata, group = "language", group.equal = c("intercepts", "loadings"), std.lv=TRUE)
+
+fitMeasures(config.model, c("cfi","rmsea","srmr","aic","bic")) 
+fitMeasures(load.model, c("cfi","rmsea","srmr","aic","bic")) 
+fitMeasures(int.model, c("cfi","rmsea","srmr","aic","bic")) 
+```
