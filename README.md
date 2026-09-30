@@ -1,3 +1,3 @@
 # Beyond the Trauma Film Paradigm: Predicting Intrusive Memories of a Commercial Haunted House Using the Severity of Horror Media-induced Intrusive Memories Scale
 
-Repository for SHMIM scale development and validation, and haunted house application analyses
+This repository accompanies the manuscript “Beyond the Trauma Film Paradigm: Predicting Intrusive Memories of a Commercial Haunted House Using the Severity of Horror Media-induced Intrusive Memories Scale”. This project developed and validated the Severity of Horror Media-induced Intrusive Memories (SHMIM) scale, and administered the SHMIM to visitors of Dystopia haunted house who tracked their intrusive memories of the haunted house experience for one week.
